@@ -1,8 +1,7 @@
 use diesel::{Queryable, prelude::Insertable};
-use log::warn;
 
 use crate::{
-    domain::value_objects::id::ID, presentation::dtos::user_dto::LoadedUserDTO, schema::users,
+    domain::value_objects::id::ID, presentation::dtos::user_dto::CreateUserDTO, schema::users,
 };
 
 #[derive(Debug, Clone, Insertable, Queryable)]
@@ -28,20 +27,8 @@ impl User {
     }
 }
 
-impl Into<Option<LoadedUserDTO>> for User {
-    fn into(self) -> Option<LoadedUserDTO> {
-        match self.id {
-            ID::Existing(id) => Some(LoadedUserDTO {
-                id,
-                name: self.name,
-                email: self.email,
-                phone: self.phone,
-                address: self.address,
-            }),
-            ID::New => {
-                warn!("trying to initialize LoadedUserDTO without ID");
-                None
-            }
-        }
+impl From<CreateUserDTO> for User {
+    fn from(value: CreateUserDTO) -> Self {
+        Self::new(value.name, value.email, value.phone, value.address)
     }
 }
