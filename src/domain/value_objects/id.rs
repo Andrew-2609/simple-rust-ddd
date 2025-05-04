@@ -13,6 +13,16 @@ impl From<i32> for ID {
     }
 }
 
+impl From<ID> for Option<i32> {
+    fn from(value: ID) -> Self {
+        match value {
+            ID::New => None,
+            ID::Existing(id) => Some(id),
+        }
+    }
+}
+
+#[cfg(not(tarpaulin_include))]
 impl FromSql<Integer, Pg> for ID {
     fn from_sql(
         bytes: <Pg as diesel::backend::Backend>::RawValue<'_>,
@@ -22,6 +32,7 @@ impl FromSql<Integer, Pg> for ID {
     }
 }
 
+#[cfg(not(tarpaulin_include))]
 impl ToSql<Integer, Pg> for ID {
     fn to_sql<'b>(
         &'b self,
@@ -34,11 +45,26 @@ impl ToSql<Integer, Pg> for ID {
     }
 }
 
-impl From<ID> for Option<i32> {
-    fn from(value: ID) -> Self {
-        match value {
-            ID::New => None,
-            ID::Existing(id) => Some(id),
-        }
+#[cfg(test)]
+mod test {
+    use crate::domain::value_objects::id::ID;
+
+    #[test]
+    fn from_i32() {
+        let id: i32 = 42;
+        let id: ID = id.into();
+        assert_eq!(id, ID::Existing(42));
+    }
+
+    #[test]
+    fn from_id_into_option_i32() {
+        let new_id = ID::New;
+        let existing_id = ID::Existing(42);
+
+        let id: Option<i32> = new_id.into();
+        assert_eq!(id, None);
+
+        let id: Option<i32> = existing_id.into();
+        assert_eq!(id, Some(42));
     }
 }
