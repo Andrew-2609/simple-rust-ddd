@@ -7,7 +7,9 @@ use log::error;
 use serde::Deserialize;
 
 use crate::{
-    application::use_cases::{get_user::GetUserUseCase, register_user::RegisterUserUseCase},
+    application::use_cases::{
+        find_user_by_email::FindUserByEmailUseCase, register_user::RegisterUserUseCase,
+    },
     infrastructure::repositories::postgres_user_repository::PostgresUserRepository,
     presentation::dtos::user_dto::{CreateUserDTO, LoadedUserDTO},
     schema::users,
@@ -48,8 +50,8 @@ pub async fn get_by_email(
 ) -> HttpResponse {
     let email = path.into_inner();
 
-    let result = GetUserUseCase::new(repo.into_inner())
-        .get(email.clone())
+    let result = FindUserByEmailUseCase::new(repo.into_inner())
+        .execute(email.clone())
         .await;
 
     match result {
