@@ -1,7 +1,10 @@
 {
   "cSpell.words": [
     "actix",
+    "cfgs",
     "dotenv",
-    "Insertable"
+    "dtos",
+    "Insertable",
+    "serde"
   ]
 }
