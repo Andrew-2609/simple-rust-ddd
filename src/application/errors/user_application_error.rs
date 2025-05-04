@@ -34,12 +34,6 @@ impl From<UserRepositoryError> for UserApplicationError {
     }
 }
 
-impl From<UserRepositoryError> for String {
-    fn from(value: UserRepositoryError) -> Self {
-        value.to_string()
-    }
-}
-
 #[cfg(test)]
 mod test {
     use crate::{
