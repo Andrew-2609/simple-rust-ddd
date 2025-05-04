@@ -29,13 +29,11 @@ pub async fn register_user_handler(
     repo: web::Data<PostgresUserRepository>,
     input: web::Json<CreateUserDTO>,
 ) -> HttpResponse {
-    let input: CreateUserDTO = input.into_inner();
-
     match RegisterUserUseCase::new(repo.into_inner())
-        .execute(input.into())
+        .execute(input.into_inner())
         .await
     {
-        Ok(_) => HttpResponse::Ok().finish(),
+        Ok(id) => HttpResponse::Ok().json(id),
         Err(err) => {
             error!("Error registering user! {:?}", err);
             HttpResponse::InternalServerError().body("Please try again...")
