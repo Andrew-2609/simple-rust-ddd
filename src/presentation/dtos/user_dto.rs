@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::domain::{entities::user::User, value_objects::id::ID};
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Clone)]
 pub struct CreateUserDTO {
     pub name: String,
     pub email: String,

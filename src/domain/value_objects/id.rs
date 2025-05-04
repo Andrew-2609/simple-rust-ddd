@@ -1,7 +1,7 @@
 use diesel::{deserialize::FromSql, pg::Pg, serialize::ToSql, sql_types::Integer};
 use serde::Serialize;
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, PartialEq)]
 pub enum ID {
     New,
     Existing(i32),
