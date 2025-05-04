@@ -5,7 +5,8 @@ use crate::{
     schema,
 };
 use async_trait::async_trait;
-use diesel::prelude::*;
+use diesel::dsl::exists;
+use diesel::{prelude::*, select};
 use std::sync::Arc;
 
 #[derive(Clone)]
@@ -28,6 +29,12 @@ impl UserRepository for Arc<PostgresUserRepository> {
         diesel::insert_into(schema::users::table)
             .values(user.clone())
             .returning(id)
+            .get_result(&mut self.pool.get().unwrap())
+            .map_err(|err| err.to_string())
+    }
+
+    async fn exists_by_email(&self, input_email: &str) -> Result<bool, String> {
+        select(exists(users.filter(email.eq(input_email))))
             .get_result(&mut self.pool.get().unwrap())
             .map_err(|err| err.to_string())
     }

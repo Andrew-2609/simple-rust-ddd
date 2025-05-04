@@ -12,7 +12,12 @@ impl<T: UserRepository> RegisterUserUseCase<T> {
     }
 
     pub async fn execute(&self, user: CreateUserDTO) -> Result<i32, String> {
+        if self.user_repo.exists_by_email(&user.email).await? {
+            return Err(format!("The email {} is already taken", user.email));
+        }
+
         let user: User = user.into();
+
         self.user_repo.save(&user).await
     }
 }

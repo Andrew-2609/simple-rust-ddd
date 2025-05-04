@@ -1,11 +1,3 @@
-use actix_web::{
-    HttpResponse, get, post,
-    web::{self, Path},
-};
-use diesel::prelude::Insertable;
-use log::error;
-use serde::Deserialize;
-
 use crate::{
     application::use_cases::{
         find_user_by_email::FindUserByEmailUseCase, register_user::RegisterUserUseCase,
@@ -14,6 +6,12 @@ use crate::{
     presentation::dtos::user_dto::{CreateUserDTO, LoadedUserDTO},
     schema::users,
 };
+use actix_web::{
+    HttpResponse, get, post,
+    web::{self, Path},
+};
+use diesel::prelude::Insertable;
+use serde::Deserialize;
 
 #[derive(Debug, Clone, Deserialize, Insertable)]
 #[diesel(table_name = users)]
@@ -34,10 +32,7 @@ pub async fn register_user_handler(
         .await
     {
         Ok(id) => HttpResponse::Ok().json(id),
-        Err(err) => {
-            error!("Error registering user! {:?}", err);
-            HttpResponse::InternalServerError().body("Please try again...")
-        }
+        Err(err) => HttpResponse::InternalServerError().body(err),
     }
 }
 
