@@ -10,12 +10,11 @@ impl<T: UserRepository> UserService<T> {
         UserService { user_repo }
     }
 
-    pub async fn register_user(&self, user: User) -> Result<(), diesel::result::Error> {
-        self.user_repo.save(&user).await?;
-        Ok(())
+    pub async fn register_user(&self, user: User) -> Result<i32, String> {
+        self.user_repo.save(&user).await
     }
 
-    pub async fn get_by_email(&self, email: String) -> Option<User> {
+    pub async fn get_by_email(&self, email: String) -> Result<Option<User>, String> {
         self.user_repo.find_by_email(email).await
     }
 }

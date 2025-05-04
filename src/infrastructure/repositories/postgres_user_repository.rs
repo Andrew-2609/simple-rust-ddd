@@ -1,4 +1,4 @@
-use crate::schema::users::dsl::{email, users};
+use crate::schema::users::dsl::{email, id, users};
 use crate::{
     domain::{entities::user::User, repositories::user_repository::UserRepository},
     infrastructure::db::connection::{DBPool, establish_connection},
@@ -24,20 +24,19 @@ impl PostgresUserRepository {
 
 #[async_trait]
 impl UserRepository for Arc<PostgresUserRepository> {
-    async fn find_by_email(&self, input_email: String) -> Option<User> {
+    async fn save(&self, user: &User) -> Result<i32, String> {
+        diesel::insert_into(schema::users::table)
+            .values(user.clone())
+            .returning(id)
+            .get_result(&mut self.pool.get().unwrap())
+            .map_err(|err| err.to_string())
+    }
+
+    async fn find_by_email(&self, input_email: String) -> Result<Option<User>, String> {
         users
             .filter(email.eq(input_email))
             .first::<User>(&mut self.pool.get().unwrap())
             .optional()
-            .unwrap_or(None)
-    }
-
-    async fn save(&self, user: &User) -> Result<(), diesel::result::Error> {
-        diesel::insert_into(schema::users::table)
-            .values(user.clone())
-            .execute(&mut self.pool.get().unwrap())
-            .unwrap();
-
-        Ok(())
+            .map_err(|err| err.to_string())
     }
 }

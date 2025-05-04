@@ -13,7 +13,7 @@ impl<T: UserRepository> RegisterUserUseCase<T> {
         Self { user_service }
     }
 
-    pub async fn execute(&self, user: User) -> Result<(), diesel::result::Error> {
+    pub async fn execute(&self, user: User) -> Result<i32, String> {
         self.user_service.register_user(user).await
     }
 }

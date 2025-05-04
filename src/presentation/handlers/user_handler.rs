@@ -48,17 +48,19 @@ pub async fn get_by_email(
 ) -> HttpResponse {
     let email = path.into_inner();
 
-    match GetUserUseCase::new(repo.into_inner())
+    let result = GetUserUseCase::new(repo.into_inner())
         .get(email.clone())
-        .await
-    {
-        Some(user) => {
-            let loaded_user: Option<LoadedUserDTO> = user.into();
-            HttpResponse::Ok().json(loaded_user)
+        .await;
+
+    match result {
+        Ok(user) => {
+            if let Some(user) = user {
+                let loaded_user: Option<LoadedUserDTO> = user.into();
+                HttpResponse::Ok().json(loaded_user)
+            } else {
+                HttpResponse::NotFound().json(format!("User not found by email: {email}"))
+            }
         }
-        None => {
-            error!("Error loading user by email: {}", email);
-            HttpResponse::InternalServerError().body("Please try again...")
-        }
+        Err(err) => HttpResponse::InternalServerError().body(err),
     }
 }

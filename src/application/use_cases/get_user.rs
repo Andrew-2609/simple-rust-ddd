@@ -13,7 +13,7 @@ impl<T: UserRepository> GetUserUseCase<T> {
         Self { user_service }
     }
 
-    pub async fn get(&self, email: String) -> Option<User> {
+    pub async fn get(&self, email: String) -> Result<Option<User>, String> {
         self.user_service.get_by_email(email).await
     }
 }
