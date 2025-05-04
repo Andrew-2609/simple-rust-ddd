@@ -53,7 +53,7 @@ pub async fn get_by_email(
         .await
     {
         Some(user) => {
-            let loaded_user: Option<LoadedUserDTO> = user.try_into().unwrap_or(None);
+            let loaded_user: Option<LoadedUserDTO> = user.into();
             HttpResponse::Ok().json(loaded_user)
         }
         None => {
