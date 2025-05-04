@@ -1,19 +1,15 @@
-use crate::domain::{
-    entities::user::User, repositories::user_repository::UserRepository,
-    services::user_service::UserService,
-};
+use crate::domain::{entities::user::User, repositories::user_repository::UserRepository};
 
 pub struct GetUserUseCase<T: UserRepository> {
-    user_service: UserService<T>,
+    user_repo: T,
 }
 
 impl<T: UserRepository> GetUserUseCase<T> {
     pub fn new(user_repo: T) -> Self {
-        let user_service = UserService::new(user_repo);
-        Self { user_service }
+        Self { user_repo }
     }
 
     pub async fn get(&self, email: String) -> Result<Option<User>, String> {
-        self.user_service.get_by_email(email).await
+        self.user_repo.find_by_email(email).await
     }
 }
