@@ -3,11 +3,14 @@ use crate::{
         find_user_by_email::FindUserByEmailUseCase, register_user::RegisterUserUseCase,
     },
     infrastructure::repositories::postgres_user_repository::PostgresUserRepository,
-    presentation::dtos::user_dto::{CreateUserDTO, LoadedUserDTO},
+    presentation::{
+        dtos::user_dto::{CreateUserDTO, LoadedUserDTO},
+        errors::user_http_error::UserHttpError,
+    },
     schema::users,
 };
 use actix_web::{
-    HttpResponse, get, post,
+    HttpResponse, ResponseError, get, post,
     web::{self, Path},
 };
 use diesel::prelude::Insertable;
@@ -32,7 +35,7 @@ pub async fn register_user_handler(
         .await
     {
         Ok(id) => HttpResponse::Ok().json(id),
-        Err(err) => HttpResponse::InternalServerError().body(err),
+        Err(err) => UserHttpError::from(err).error_response(),
     }
 }
 
@@ -56,6 +59,6 @@ pub async fn get_by_email(
                 HttpResponse::NotFound().json(format!("User not found by email: {email}"))
             }
         }
-        Err(err) => HttpResponse::InternalServerError().body(err),
+        Err(err) => UserHttpError::from(err).error_response(),
     }
 }
