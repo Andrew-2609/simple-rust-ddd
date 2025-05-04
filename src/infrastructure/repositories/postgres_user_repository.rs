@@ -1,4 +1,3 @@
-use crate::presentation::handlers::user_handler::NewUser;
 use crate::schema::users::dsl::{email, users};
 use crate::{
     domain::{entities::user::User, repositories::user_repository::UserRepository},
@@ -33,9 +32,9 @@ impl UserRepository for Arc<PostgresUserRepository> {
             .unwrap_or(None)
     }
 
-    async fn save(&self, user: &NewUser) -> Result<(), diesel::result::Error> {
+    async fn save(&self, user: &User) -> Result<(), diesel::result::Error> {
         diesel::insert_into(schema::users::table)
-            .values(user)
+            .values(user.clone())
             .execute(&mut self.pool.get().unwrap())
             .unwrap();
 

@@ -1,5 +1,4 @@
 use crate::domain::{entities::user::User, repositories::user_repository::UserRepository};
-use crate::presentation::handlers::user_handler::NewUser;
 
 #[derive(Clone)]
 pub struct UserService<T: UserRepository> {
@@ -11,7 +10,7 @@ impl<T: UserRepository> UserService<T> {
         UserService { user_repo }
     }
 
-    pub async fn register_user(&self, user: NewUser) -> Result<(), diesel::result::Error> {
+    pub async fn register_user(&self, user: User) -> Result<(), diesel::result::Error> {
         self.user_repo.save(&user).await?;
         Ok(())
     }

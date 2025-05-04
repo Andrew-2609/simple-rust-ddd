@@ -9,6 +9,7 @@ use serde::Deserialize;
 use crate::{
     application::use_cases::{get_user::GetUserUseCase, register_user::RegisterUserUseCase},
     infrastructure::repositories::postgres_user_repository::PostgresUserRepository,
+    presentation::dtos::user_dto::{CreateUserDTO, LoadedUserDTO},
     schema::users,
 };
 
@@ -24,10 +25,12 @@ pub struct NewUser {
 #[post("")]
 pub async fn register_user_handler(
     repo: web::Data<PostgresUserRepository>,
-    input: web::Json<NewUser>,
+    input: web::Json<CreateUserDTO>,
 ) -> HttpResponse {
+    let input: CreateUserDTO = input.into_inner();
+
     match RegisterUserUseCase::new(repo.into_inner())
-        .execute(input.into_inner())
+        .execute(input.into())
         .await
     {
         Ok(_) => HttpResponse::Ok().finish(),
@@ -49,7 +52,10 @@ pub async fn get_by_email(
         .get(email.clone())
         .await
     {
-        Some(user) => HttpResponse::Ok().json(user),
+        Some(user) => {
+            let loaded_user: Option<LoadedUserDTO> = user.try_into().unwrap_or(None);
+            HttpResponse::Ok().json(loaded_user)
+        }
         None => {
             error!("Error loading user by email: {}", email);
             HttpResponse::InternalServerError().body("Please try again...")
