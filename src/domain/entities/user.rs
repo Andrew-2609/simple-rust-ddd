@@ -1,10 +1,12 @@
 use diesel::{Queryable, prelude::Insertable};
 
 use crate::{
-    domain::value_objects::id::ID, presentation::dtos::user_dto::CreateUserDTO, schema::users,
+    domain::{errors::user_entity_error::UserEntityError, value_objects::id::ID},
+    presentation::dtos::user_dto::CreateUserDTO,
+    schema::users,
 };
 
-#[derive(Debug, Clone, Insertable, Queryable)]
+#[derive(Debug, Clone, Insertable, Queryable, PartialEq)]
 #[diesel(table_name = users)]
 pub struct User {
     #[diesel(serialize_as = Option<i32>, deserialize_as = i32)]
@@ -25,6 +27,26 @@ impl User {
             address,
         }
     }
+
+    pub fn restore(
+        id: i32,
+        name: String,
+        email: String,
+        phone: String,
+        address: String,
+    ) -> Result<Self, UserEntityError> {
+        if id <= 0 {
+            return Err(UserEntityError::InvalidId(id));
+        }
+
+        Ok(Self {
+            id: ID::Existing(id),
+            name,
+            email,
+            phone,
+            address,
+        })
+    }
 }
 
 impl From<CreateUserDTO> for User {
@@ -36,7 +58,9 @@ impl From<CreateUserDTO> for User {
 #[cfg(test)]
 mod test {
     use crate::{
-        domain::{entities::user::User, value_objects::id::ID},
+        domain::{
+            entities::user::User, errors::user_entity_error::UserEntityError, value_objects::id::ID,
+        },
         presentation::dtos::user_dto::CreateUserDTO,
     };
 
@@ -55,6 +79,45 @@ mod test {
         );
 
         assert_eq!(user.id, ID::New);
+        assert_eq!(user.name, name);
+        assert_eq!(user.email, email);
+        assert_eq!(user.phone, phone);
+        assert_eq!(user.address, address);
+    }
+
+    #[test]
+    fn restore_non_positive_id() {
+        let id = 0;
+
+        let user = User::restore(
+            id,
+            "Andrew".to_string(),
+            "andrew@email.com".to_string(),
+            "+550011111-2222".to_string(),
+            "Dawn St.".to_string(),
+        );
+
+        assert_eq!(user, Err(UserEntityError::InvalidId(0)))
+    }
+
+    #[test]
+    fn restore_ok() {
+        let id = 42;
+        let name = "Andrew";
+        let email = "andrew@email.com";
+        let phone = "+550011111-2222";
+        let address = "Dawn St.";
+
+        let user = User::restore(
+            id,
+            name.to_string(),
+            email.to_string(),
+            phone.to_string(),
+            address.to_string(),
+        )
+        .unwrap();
+
+        assert_eq!(user.id, ID::Existing(42));
         assert_eq!(user.name, name);
         assert_eq!(user.email, email);
         assert_eq!(user.phone, phone);
