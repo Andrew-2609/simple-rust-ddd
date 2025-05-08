@@ -1,6 +1,8 @@
 use crate::domain::{entities::user::User, errors::user_repository_error::UserRepositoryError};
 use async_trait::async_trait;
+use mockall::automock;
 
+#[automock]
 #[async_trait]
 pub trait UserRepository {
     async fn save(&self, user: &User) -> Result<i32, UserRepositoryError>;
