@@ -6,6 +6,7 @@
     "dtos",
     "Insertable",
     "mockall",
-    "serde"
+    "serde",
+    "withf"
   ]
 }
