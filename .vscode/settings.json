@@ -5,6 +5,7 @@
     "dotenv",
     "dtos",
     "Insertable",
+    "mockall",
     "serde"
   ]
 }
