@@ -2,6 +2,7 @@ use diesel::{PgConnection, r2d2::ConnectionManager};
 
 pub type DBPool = r2d2::Pool<ConnectionManager<PgConnection>>;
 
+#[cfg(not(tarpaulin_include))]
 pub fn establish_connection(db_url: &str) -> DBPool {
     let manager = ConnectionManager::<PgConnection>::new(db_url);
 

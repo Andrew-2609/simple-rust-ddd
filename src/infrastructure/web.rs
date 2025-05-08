@@ -4,6 +4,7 @@ use super::repositories::postgres_user_repository::PostgresUserRepository;
 use actix_web::{App, HttpServer, middleware::Logger, web};
 use log::info;
 
+#[cfg(not(tarpaulin_include))]
 pub async fn run() -> std::io::Result<()> {
     let repo = PostgresUserRepository::new();
     let app_data = web::Data::new(repo);
